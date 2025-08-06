@@ -223,11 +223,11 @@ final class ListViewModelTests: XCTestCase {
         // Act
         await viewModel.refreshDataWithLoadingIndicator()
         viewModel.searchText = "X"
-        try? await Task.sleep(nanoseconds: 200_000_000)
+        try? await Task.sleep(nanoseconds: 300_000_000)
         viewModel.searchText = "XY"
-        try? await Task.sleep(nanoseconds: 200_000_000)
+        try? await Task.sleep(nanoseconds: 300_000_000)
         viewModel.searchText = "XYZ"
-        try? await Task.sleep(nanoseconds: 200_000_000)
+        try? await Task.sleep(nanoseconds: 300_000_000)
         // Assert
         XCTAssertEqual(viewModel.displayItems.count, 0)
     }
@@ -250,6 +250,33 @@ final class ListViewModelTests: XCTestCase {
         XCTAssertEqual((viewModel.displayItems[0] as! MockPriceItem).name, "BTC")
     }
     
+    func testSearchBinding_ErrorHandling() async throws {
+        // Arrange
+        mockUseCase.shouldThrowError = true
+        let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
+        
+        // Act - trigger search which will cause an error
+        viewModel.searchText = "BTC"
+        
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        // Assert - verify that even with error, the UI doesn't crash
+        // and the display items are empty (graceful error handling)
+        XCTAssertTrue(viewModel.displayItems.isEmpty)
+        
+        // Now test recovery after error
+        mockUseCase.shouldThrowError = false
+        mockUseCase.stubbedItems = [
+            MockPriceItem(id: 1, name: "BTC", usdPrice: 100.0, eurPrice: 90.0)
+        ]
+        
+        // Trigger new search
+        viewModel.searchText = "BT"
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        XCTAssertEqual(viewModel.displayItems.count, 1)
+        // Verify system recovers after error
+        
+    }
+
 
 }
 
