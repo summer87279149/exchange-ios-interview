@@ -5,18 +5,19 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
-        Dependency.shared.register(USDPriceUseCase.self) { resolver in
-            return USDPriceUseCase()
+
+        Dependency.shared.register(CryptoUseCaseType.self) { resolver in
+            return CryptoUseCase(repository: CryptoRepository())
         }
-        
-        Dependency.shared.register(AllPriceUseCase.self) { resolver in
-            return AllPriceUseCase()
-        }
-        
-        Dependency.shared.register(FeatureFlagProvider.self) { resolver in
+
+        Dependency.shared.register(FeatureFlagProviderType.self) { resolver in
             return FeatureFlagProvider()
         }
+        
+        Dependency.shared.register(CryptoFormatter.self) { resolver in
+            return CryptoFormatter()
+        }
+        
         
         return true
     }
