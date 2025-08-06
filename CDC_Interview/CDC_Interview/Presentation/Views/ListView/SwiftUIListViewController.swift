@@ -57,6 +57,8 @@ struct ItemView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 
