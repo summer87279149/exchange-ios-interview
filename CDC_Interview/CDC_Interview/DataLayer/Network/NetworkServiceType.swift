@@ -2,50 +2,46 @@ import Foundation
 import RxSwift
 
 protocol NetworkServiceType {
-    func loadLocalJSON<T: Decodable>(filename: String) async throws -> T
-    func loadLocalJSONObservable<T: Decodable>(filename: String) -> Observable<T>
+    func loadLocalJSONObservable<T: Decodable>(filename: String) -> Single<T>
 }
 
 class NetworkService: NetworkServiceType {
-    func loadLocalJSON<T: Decodable>(filename: String) async throws -> T {
-        guard let path = Bundle.main.path(forResource: filename, ofType: "json") else {
-            throw NetworkError.fileNotFound(filename: filename)
-        }
-        
-        do {
-            let data = try Data(contentsOf: URL(fileURLWithPath: path))
-            return try JSONDecoder().decode(T.self, from: data)
-        } catch {
-            if let decodingError = error as? DecodingError {
-                throw NetworkError.decodingFailed(error: decodingError)
-            } else {
-                throw NetworkError.unknown(error: error)
-            }
-        }
-    }
-    
-    func loadLocalJSONObservable<T: Decodable>(filename: String) -> Observable<T> {
-        return Observable.create { observer in
-            guard let path = Bundle.main.path(forResource: filename, ofType: "json") else {
-                observer.onError(NetworkError.fileNotFound(filename: filename))
-                observer.onCompleted()
-                return Disposables.create()
-            }
-            
-            do {
-                let data = try Data(contentsOf: URL(fileURLWithPath: path))
-                let decodedObject = try JSONDecoder().decode(T.self, from: data)
-                observer.onNext(decodedObject)
-                observer.onCompleted()
-            } catch let error as DecodingError {
-                observer.onError(NetworkError.decodingFailed(error: error))
-                observer.onCompleted()
-            } catch {
-                observer.onError(NetworkError.unknown(error: error))
-                observer.onCompleted()
+    func loadLocalJSONObservable<T: Decodable>(filename: String) -> Single<T> {
+        return Single.create { single in
+            // Create a background task that can be cancelled
+            let task = Task {
+                do {
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                    
+                    if Task.isCancelled {
+                        return
+                    }
+                    
+                    guard let path = Bundle.main.path(forResource: filename, ofType: "json") else {
+                        single(.failure(NetworkError.fileNotFound(filename: filename)))
+                        return
+                    }
+                    
+                    let data = try Data(contentsOf: URL(fileURLWithPath: path))
+                    let decodedObject = try JSONDecoder().decode(T.self, from: data)
+                    
+                    if !Task.isCancelled {
+                        single(.success(decodedObject))
+                    }
+                } catch let error as DecodingError {
+                    if !Task.isCancelled {
+                        single(.failure(NetworkError.decodingFailed(error: error)))
+                    }
+                } catch {
+                    if !Task.isCancelled {
+                        single(.failure(NetworkError.unknown(error: error)))
+                    }
+                }
             }
             
-            return Disposables.create()
+            return Disposables.create {
+                task.cancel()
+            }
         }
     }
 }
