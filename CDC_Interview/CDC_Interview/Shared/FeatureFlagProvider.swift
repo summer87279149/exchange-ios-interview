@@ -11,7 +11,7 @@ protocol FeatureFlagProviderType {
     func getValue(flag: FeatureFlagType) -> Bool
     func update(flag: FeatureFlagType, newValue: Bool)
 }
-class FeatureFlagProvider: FeatureFlagProviderType{
+final class FeatureFlagProvider: FeatureFlagProviderType{
     let flagsRelay: BehaviorRelay<[FeatureFlagType: Bool]> = .init(
         value: [
             .supportEUR: false

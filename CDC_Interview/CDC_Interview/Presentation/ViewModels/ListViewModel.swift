@@ -5,27 +5,27 @@ import RxRelay
 import RxCocoa
 
 protocol ListViewModelDependencyProviderType {
-    var useCase: CryptoUseCaseType { get }
-    var featureFlagProvider: FeatureFlagProviderType { get }
-    var cryptoFormatter: CryptoFormatter { get }
+    var useCase: CryptoUseCaseType? { get }
+    var featureFlagProvider: FeatureFlagProviderType? { get }
+    var cryptoFormatter: CryptoFormatter? { get }
 }
 
 extension Dependency: ListViewModelDependencyProviderType{
-    var useCase: any CryptoUseCaseType {
-        resolve(CryptoUseCaseType.self)!
+    var useCase: (any CryptoUseCaseType)? {
+        resolve(CryptoUseCaseType.self)
     }
     
-    var featureFlagProvider: any FeatureFlagProviderType {
-        resolve(FeatureFlagProviderType.self)!
+    var featureFlagProvider: (any FeatureFlagProviderType)? {
+        resolve(FeatureFlagProviderType.self)
     }
     
-    var cryptoFormatter: CryptoFormatter {
-        resolve(CryptoFormatter.self)!
+    var cryptoFormatter: CryptoFormatter? {
+        resolve(CryptoFormatter.self)
     }
 }
 
 @MainActor
-class ListViewModel: ObservableObject {
+final class ListViewModel: ObservableObject {
     @Published var searchText: String = ""{
         didSet{
             searchRelay.accept(searchText)
@@ -35,9 +35,9 @@ class ListViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var showEURPrice: Bool = false
     
-    private let useCase: CryptoUseCaseType
+    private let useCase: CryptoUseCaseType?
     private let disposeBag = DisposeBag()
-    private let featureFlagProvider: FeatureFlagProviderType
+    private let featureFlagProvider: FeatureFlagProviderType?
     private let dependencyProvider: ListViewModelDependencyProviderType
     private var allItems = BehaviorRelay<[CryptoPriceDataType]>(value: [])
     private let searchRelay = BehaviorRelay<String>(value: "")
@@ -51,7 +51,7 @@ class ListViewModel: ObservableObject {
     }
     
     private func setupFeatureFlags() {
-        featureFlagProvider.observeFlagValue(flag: .supportEUR)
+        featureFlagProvider?.observeFlagValue(flag: .supportEUR)
             .distinctUntilChanged()
             .subscribe(with: self, onNext: { owner, newValue in
                 owner.showEURPrice = newValue
@@ -117,7 +117,10 @@ class ListViewModel: ObservableObject {
     }
     
     private func requstData() -> Single<[CryptoPriceDataType]>{
-        useCase.getCryptoPriceDataObservable(supportEUR: showEURPrice)
+        if let useCase {
+            return useCase.getCryptoPriceDataObservable(supportEUR: showEURPrice)
+        }
+        return .just([])
     }
     
     func getPriceText(_ model: CryptoPriceDataType) -> String {
@@ -128,17 +131,13 @@ class ListViewModel: ObservableObject {
         return price
     }
     
-    func getUSDPrice(_ model: CryptoPriceDataType?) -> String{
-        if let model{
-            return dependencyProvider.cryptoFormatter.format(value: model.usdPrice)
-        }
-        return ""
+    func getUSDPrice(_ model: CryptoPriceDataType) -> String{
+        dependencyProvider.cryptoFormatter?.format(value: model.usdPrice) ?? ""
     }
     
-    func getEURPrice(_ model: CryptoPriceDataType? ) -> String{
-        if let model,
-           let eurPrice = model.eurPrice {
-            return dependencyProvider.cryptoFormatter.format(value: eurPrice)
+    func getEURPrice(_ model: CryptoPriceDataType) -> String{
+        if let eurPrice = model.eurPrice, let cryptoFormatter = dependencyProvider.cryptoFormatter {
+            return cryptoFormatter.format(value: eurPrice)
         }
         return ""
     }

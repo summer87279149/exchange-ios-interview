@@ -98,11 +98,10 @@ final class DetailViewModelTests: XCTestCase {
 // MARK: - Test Helpers
 
 class MockDetailDependencyProvider: ListViewModelDependencyProviderType {
-    let cryptoFormatter: CryptoFormatter
-    let featureFlagProvider: FeatureFlagProviderType
+    let cryptoFormatter: CryptoFormatter?
+    let featureFlagProvider: FeatureFlagProviderType?
     
-    // We don't need the use case for DetailViewModel tests
-    var useCase: CryptoUseCaseType {
+    var useCase: CryptoUseCaseType? {
         fatalError("UseCase should not be used in DetailViewModel tests")
     }
     

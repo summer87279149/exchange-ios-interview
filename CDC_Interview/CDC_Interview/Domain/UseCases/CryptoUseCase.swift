@@ -6,7 +6,7 @@ protocol CryptoUseCaseType {
     func getCryptoPriceDataObservable(supportEUR: Bool) -> Single<[CryptoPriceDataType]>
 }
 
-class CryptoUseCase: CryptoUseCaseType {
+final class CryptoUseCase: CryptoUseCaseType {
     private let repository: CryptoRepositoryType
     
     init(repository: CryptoRepositoryType) {

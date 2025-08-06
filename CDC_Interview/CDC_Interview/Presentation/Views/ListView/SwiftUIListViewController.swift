@@ -12,16 +12,15 @@ struct CryptoListView: View {
     
     var body: some View {
         VStack {
+            TextField("Search for a token", text: $viewModel.searchText)
+                .padding(8)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
             if viewModel.isLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
                     .frame(maxWidth: .infinity,maxHeight: .infinity)
-            } else {
-                TextField("Search for a token", text: $viewModel.searchText)
-                    .padding(8)
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
-                
+            } else {                
                 if viewModel.displayItems.isEmpty {
                     VStack {
                         Spacer()
@@ -39,6 +38,7 @@ struct CryptoListView: View {
                 }
             }
         }
+
         .task {
             await viewModel.refreshDataWithLoadingIndicator()
         }

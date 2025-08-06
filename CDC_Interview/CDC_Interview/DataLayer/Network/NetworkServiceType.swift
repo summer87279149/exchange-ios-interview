@@ -5,7 +5,7 @@ protocol NetworkServiceType {
     func loadLocalJSONObservable<T: Decodable>(filename: String) -> Single<T>
 }
 
-class NetworkService: NetworkServiceType {
+final class NetworkService: NetworkServiceType {
     func loadLocalJSONObservable<T: Decodable>(filename: String) -> Single<T> {
         return Single.create { single in
             // Create a background task that can be cancelled

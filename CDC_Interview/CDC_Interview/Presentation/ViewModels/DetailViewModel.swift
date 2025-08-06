@@ -9,12 +9,15 @@ class DetailViewModel: ObservableObject {
     private let disposeBag = DisposeBag()
     
     var formattedUSDPrice: String {
-        return dependencyProvider.cryptoFormatter.format(value: item.usdPrice)
+        if let cryptoFormatter = dependencyProvider.cryptoFormatter {
+            return cryptoFormatter.format(value: item.usdPrice)
+        }
+        return ""
     }
     
     var formattedEURPrice: String {
-        if let eurPrice = item.eurPrice {
-            return dependencyProvider.cryptoFormatter.format(value: eurPrice)
+        if let eurPrice = item.eurPrice, let cryptoFormatter = dependencyProvider.cryptoFormatter {
+            return cryptoFormatter.format(value: eurPrice)
         }
         return "--"
     }
@@ -26,8 +29,8 @@ class DetailViewModel: ObservableObject {
     }
     
     private func setupFeatureFlags() {
-        showEURPrice = dependencyProvider.featureFlagProvider.getValue(flag: .supportEUR)
-        dependencyProvider.featureFlagProvider.observeFlagValue(flag: .supportEUR)
+        showEURPrice = dependencyProvider.featureFlagProvider?.getValue(flag: .supportEUR) ?? false
+        dependencyProvider.featureFlagProvider?.observeFlagValue(flag: .supportEUR)
             .distinctUntilChanged()
             .subscribe(with: self, onNext: { owner, newValue in
                 owner.showEURPrice = newValue
