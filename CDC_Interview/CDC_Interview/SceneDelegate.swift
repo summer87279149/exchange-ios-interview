@@ -66,6 +66,7 @@ extension SceneDelegate: CryptoListCoordinator {
     func didSelectCryptoItem(_ item: CryptoPriceDataType) {
         let detailView = DetailView(item: item)
         let detailViewController = UIHostingController(rootView: detailView)
+        detailViewController.hidesBottomBarWhenPushed = true
         detailViewController.title = item.name
         if let navigationController = window?.rootViewController?.children.first as? UINavigationController {
             navigationController.pushViewController(detailViewController, animated: true)
