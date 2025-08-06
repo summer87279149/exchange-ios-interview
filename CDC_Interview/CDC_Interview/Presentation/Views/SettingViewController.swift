@@ -9,6 +9,7 @@ typealias SettingViewController = UIHostingController<SettingView>
 
 struct SettingView: View {
     @StateObject var viewModel: SettingModel = .init()
+    
     var body: some View {
         VStack {
             Toggle("Support EUR", isOn: $viewModel.supportEUR)
@@ -19,15 +20,15 @@ struct SettingView: View {
 class SettingModel: ObservableObject {
     @Published var supportEUR: Bool = false {
         didSet {
-            featureFlagProvider.update(falg: .supportEUR, newValue: supportEUR)
+            featureFlagProvider.update(flag: .supportEUR, newValue: supportEUR)
         }
     }
     
-    let featureFlagProvider: FeatureFlagProvider
+    let featureFlagProvider: FeatureFlagProviderType
     
     init() {
-        self.featureFlagProvider = Dependency.shared.resolve(FeatureFlagProvider.self)!
-        self.supportEUR = self.featureFlagProvider.getValue(falg: .supportEUR)
+        self.featureFlagProvider = Dependency.shared.resolve(FeatureFlagProviderType.self)!
+        self.supportEUR = self.featureFlagProvider.getValue(flag: .supportEUR)
     }
 }
 

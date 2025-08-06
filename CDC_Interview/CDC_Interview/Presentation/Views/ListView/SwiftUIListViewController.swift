@@ -2,16 +2,22 @@ import SwiftUI
 import Combine
 
 struct CryptoListView: View {
-    @StateObject private var viewModel = ListViewModel()
-
+    @StateObject private var viewModel: ListViewModel
+    init(dependency: Dependency = .shared) {
+        let useCase = dependency.resolve(CryptoUseCaseType.self)!
+        let featureFlagProvider = dependency.resolve(FeatureFlagProviderType.self)!
+        _viewModel = StateObject(wrappedValue:
+                                    ListViewModel(useCase: useCase, featureFlagProvider: featureFlagProvider)
+        )
+    }
     var body: some View {
         NavigationView {
             VStack {
                 TextField("Search for a token", text: $viewModel.searchText)
                     .padding(8)
-                List(viewModel.displayItems) { priceItem in
-                    ItemView(usdPrice: priceItem)
-                }
+//                List(viewModel.displayItems) { priceItem in
+//                    ItemView(usdPrice: priceItem as! USDPrice.Price)
+//                }
             }
             .task {
                 await viewModel.fetchItems()
@@ -23,7 +29,7 @@ struct CryptoListView: View {
 struct ItemView: View {
     private let formatter = CryptoFormatter.shared
     let usdPrice: USDPrice.Price
-
+    
     var body: some View {
         VStack(alignment: .leading) {
             Text(usdPrice.name)

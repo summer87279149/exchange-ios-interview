@@ -6,11 +6,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
-        Dependency.shared.register(CryptoUseCase.self) { resolver in
+        Dependency.shared.register(CryptoUseCaseType.self) { resolver in
             return CryptoUseCase(repository: CryptoRepository())
         }
 
-        Dependency.shared.register(FeatureFlagProvider.self) { resolver in
+        Dependency.shared.register(FeatureFlagProviderType.self) { resolver in
             return FeatureFlagProvider()
         }
         
