@@ -41,7 +41,7 @@ class ListViewModel: ObservableObject {
     @Published var displayItems: [USDPrice.Price] = []
 
     private let dependency: Dependency = .shared
-    private let useCase: USDPriceUseCase = .shared
+//    private let useCase: USDPriceUseCase = .shared
     private let featureFlagProvider: FeatureFlagProvider
 
     init() {
@@ -49,8 +49,8 @@ class ListViewModel: ObservableObject {
     }
 
     func fetchItems() async {
-        let items = try? await useCase.fetchItemsAsync()
-        displayItems = items ?? []
+//        let items = try? await useCase.fetchItemsAsync()
+//        displayItems = items ?? []
     }
 }
 

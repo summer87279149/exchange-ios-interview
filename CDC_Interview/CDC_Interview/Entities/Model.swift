@@ -31,3 +31,30 @@ struct AllPrice: Decodable {
 
     let data: [Price]
 }
+
+protocol PriceViewModelType {
+    var id: Int { get }
+    var name: String { get }
+    var usdPrice: Decimal { get }
+    var eurPrice: Decimal? { get }
+}
+
+extension USDPrice.Price: PriceViewModelType{
+    var usdPrice: Decimal {
+        usd
+    }
+    
+    var eurPrice: Decimal? {
+        nil
+    }
+}
+
+extension AllPrice.Price: PriceViewModelType{
+    var usdPrice: Decimal {
+        price.usd
+    }
+    
+    var eurPrice: Decimal? {
+        price.eur
+    }
+}
