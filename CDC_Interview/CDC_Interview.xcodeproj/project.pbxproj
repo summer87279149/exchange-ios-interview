@@ -26,6 +26,7 @@
 		4B1F48FC2CEDD3F200B7119E /* SwiftUIListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B1F48FB2CEDD3EC00B7119E /* SwiftUIListViewController.swift */; };
 		4B31FB7D2CE5E7A70007EF72 /* fetchFailure.json in Resources */ = {isa = PBXBuildFile; fileRef = 4B31FB7C2CE5E79A0007EF72 /* fetchFailure.json */; };
 		4B9CB95B2CEB26F700279940 /* NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9CB95A2CEB26F300279940 /* NumberFormatter.swift */; };
+		8414E7642E434D6E00FDC1AB /* SettingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8414E7632E434D6E00FDC1AB /* SettingViewModel.swift */; };
 		841C36CF2E42D72B00921B7A /* Repositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C36CE2E42D72B00921B7A /* Repositories.swift */; };
 		841C36D62E42D7CD00921B7A /* CryptoUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C36D52E42D7CD00921B7A /* CryptoUseCase.swift */; };
 		841C36D92E42D9A000921B7A /* NetworkServiceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C36D82E42D9A000921B7A /* NetworkServiceType.swift */; };
@@ -68,6 +69,7 @@
 		4B1F48FB2CEDD3EC00B7119E /* SwiftUIListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIListViewController.swift; sourceTree = "<group>"; };
 		4B31FB7C2CE5E79A0007EF72 /* fetchFailure.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = fetchFailure.json; sourceTree = "<group>"; };
 		4B9CB95A2CEB26F300279940 /* NumberFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatter.swift; sourceTree = "<group>"; };
+		8414E7632E434D6E00FDC1AB /* SettingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewModel.swift; sourceTree = "<group>"; };
 		841C36CE2E42D72B00921B7A /* Repositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repositories.swift; sourceTree = "<group>"; };
 		841C36D52E42D7CD00921B7A /* CryptoUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUseCase.swift; sourceTree = "<group>"; };
 		841C36D82E42D9A000921B7A /* NetworkServiceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkServiceType.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 			children = (
 				841C36DE2E42DF5200921B7A /* ListViewModel.swift */,
 				841C36EA2E42F2E500921B7A /* DetailViewModel.swift */,
+				8414E7632E434D6E00FDC1AB /* SettingViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -407,6 +410,7 @@
 				841C36E92E42F1FC00921B7A /* DetailView.swift in Sources */,
 				1F96701E2C91A806004DB8FD /* Model.swift in Sources */,
 				841C36EB2E42F2E500921B7A /* DetailViewModel.swift in Sources */,
+				8414E7642E434D6E00FDC1AB /* SettingViewModel.swift in Sources */,
 				1F96703B2C931FD3004DB8FD /* FeatureFlagProvider.swift in Sources */,
 				841C36CF2E42D72B00921B7A /* Repositories.swift in Sources */,
 				1F9670352C92C966004DB8FD /* SettingViewController.swift in Sources */,
