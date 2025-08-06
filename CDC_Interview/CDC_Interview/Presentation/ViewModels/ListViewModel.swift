@@ -32,7 +32,7 @@ final class ListViewModel: ObservableObject {
         }
     }
     @Published var displayItems: [CryptoPriceDataType] = []
-    @Published var isLoading = false
+    
     @Published var showEURPrice: Bool = false
     
     private let useCase: CryptoUseCaseType?
@@ -41,50 +41,50 @@ final class ListViewModel: ObservableObject {
     private let dependencyProvider: ListViewModelDependencyProviderType
     private var allItems = BehaviorRelay<[CryptoPriceDataType]>(value: [])
     private let searchRelay = BehaviorRelay<String>(value: "")
+    private let refreshRelay = PublishRelay<Void>()
     
     init(dependencyProvider: ListViewModelDependencyProviderType = Dependency.shared) {
         self.dependencyProvider = dependencyProvider
         self.useCase = dependencyProvider.useCase
         self.featureFlagProvider = dependencyProvider.featureFlagProvider
-        setupFeatureFlags()
-        setupSearchBinding()
+        setupBindings()
     }
     
-    private func setupFeatureFlags() {
-        featureFlagProvider?.observeFlagValue(flag: .supportEUR)
-            .distinctUntilChanged()
-            .subscribe(with: self, onNext: { owner, newValue in
-                owner.showEURPrice = newValue
-            })
-            .disposed(by: disposeBag)
-    }
- 
-    private func setupSearchBinding() {
-        // Remote search implementation: Triggers a new network request when search text changes
-        // This implementation assumes the backend API supports search based on query parameters
-        // Pros: Can search larger datasets not limited by client memory
-        // Cons: Increases server load, requires network connection
-        //
-        // If only local filtering is needed, this part can be removed, keeping only the combineLatest part below
-        searchRelay
-            .skip(1)
-            .debounce(.milliseconds(200), scheduler: MainScheduler.instance)
-            .distinctUntilChanged()
-            .withUnretained(self)
-            .flatMapLatest({ owner, query in
-                // flatMapLatest ensures that when a new search input occurs, previous unfinished requests are canceled
-                // This avoids "race conditions" where older search results override newer ones
-                owner.requstData().catchAndReturn([])
-            })
-            .subscribe(with: self, onNext: { owner, data in
-                owner.allItems.accept(data)
-            },onError: { owner, _ in
-                owner.allItems.accept([])
-            })
-            .disposed(by: disposeBag)
+    
+    private func setupBindings() {
+        guard let featureFlagProvider else { return }
         
-        // Local filtering implementation: Combines latest search text and dataset
-        // Regardless of whether data comes from network requests or locally, it's filtered through this mechanism
+        // Why combine these three streams:
+        // 1. searchRelay: User search input, assuming we need to refresh data to ensure current data is up-to-date
+        // 2. featureFlagProvider: EUR support status changes require data refresh
+        // 3. refreshRelay: Refresh trigger, refreshes data when entering CryptoListView
+        //
+        // Benefits of combining these streams:
+        // 1. Unified data fetching logic: Whether it's search changes, setting changes, or manual refresh, all handled through the same data stream
+        // 2. Avoid duplicate code: No need to write separate data fetching logic for each case
+        Observable.combineLatest(
+            searchRelay.debounce(.milliseconds(200), scheduler: MainScheduler.instance).distinctUntilChanged(),
+            featureFlagProvider.observeFlagValue(flag: .supportEUR).distinctUntilChanged().catchAndReturn(false),
+            refreshRelay.startWith(())
+        )
+        .withUnretained(self)
+        .flatMapLatest({ owner, combined in
+            // flatMapLatest ensures that when a new search input occurs, previous unfinished requests are canceled
+            // This avoids "race conditions" where older search results override newer ones
+            let (_, showEUR, _) = combined
+            return owner.requstData(supportEUR: showEUR).catchAndReturn([])
+        })
+        .observe(on: MainScheduler.instance)
+        .subscribe(with: self, onNext: { owner, data in
+            owner.allItems.accept(data)
+            owner.showEURPrice = featureFlagProvider.getValue(flag: .supportEUR)
+        }, onError: { owner, _ in
+            owner.allItems.accept([])
+            owner.showEURPrice = featureFlagProvider.getValue(flag: .supportEUR)
+        })
+        .disposed(by: disposeBag)
+        
+        // Filter data when search text changes or current allItems data changes
         Observable.combineLatest(
             searchRelay.asObservable(),
             allItems.asObservable()
@@ -97,14 +97,9 @@ final class ListViewModel: ObservableObject {
         .disposed(by: disposeBag)
     }
     
-    // Manual refresh with loading indicator
-    func refreshDataWithLoadingIndicator() async {
-        isLoading = true
-        defer{
-            isLoading = false
-        }
-        let items = try? await requstData().value
-        allItems.accept(items ?? [])
+    // Refresh data when entering CryptoListView
+    func refreshData() async {
+        refreshRelay.accept(())
     }
     
     @MainActor
@@ -118,9 +113,9 @@ final class ListViewModel: ObservableObject {
         }
     }
     
-    private func requstData() -> Single<[CryptoPriceDataType]>{
+    private func requstData(supportEUR: Bool) -> Single<[CryptoPriceDataType]>{
         if let useCase {
-            return useCase.getCryptoPriceDataObservable(supportEUR: showEURPrice)
+            return useCase.getCryptoPriceDataObservable(supportEUR: supportEUR)
         }
         return .just([])
     }
