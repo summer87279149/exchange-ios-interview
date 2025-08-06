@@ -6,8 +6,8 @@ final class Dependency {
     private let lock = NSLock()
     private var registerMap: [ObjectIdentifier: (Dependency) -> Any] = [:]
     private var resolveMap: [ObjectIdentifier: Any] = [:]
+    private init() {}
     
-    init() {}
     func register<T>(_ type: T.Type, block: @escaping (Dependency) -> T) {
         lock.lock()
         defer { lock.unlock() }

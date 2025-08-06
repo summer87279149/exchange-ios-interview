@@ -74,10 +74,12 @@ final class ListViewModel: ObservableObject {
             .flatMapLatest({ owner, query in
                 // flatMapLatest ensures that when a new search input occurs, previous unfinished requests are canceled
                 // This avoids "race conditions" where older search results override newer ones
-                owner.requstData()
+                owner.requstData().catchAndReturn([])
             })
             .subscribe(with: self, onNext: { owner, data in
                 owner.allItems.accept(data)
+            },onError: { owner, _ in
+                owner.allItems.accept([])
             })
             .disposed(by: disposeBag)
         
