@@ -13,7 +13,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         let tabViewController = UITabBarController.init()
         
-        let cryptoListView = CryptoListView()
+        var cryptoListView = CryptoListView()
+        cryptoListView.coordinator = self
         let view = UIHostingController(rootView: cryptoListView)
         view.title = "Price List"
         
@@ -57,6 +58,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
+    }
+}
+
+// MARK: - CryptoListCoordinator
+extension SceneDelegate: CryptoListCoordinator {
+    func didSelectCryptoItem(_ item: PriceViewModelType) {
+        let detailView = DetailView(item: item)
+        let detailViewController = UIHostingController(rootView: detailView)
+        detailViewController.title = item.name
+        if let navigationController = window?.rootViewController?.children.first as? UINavigationController {
+            navigationController.pushViewController(detailViewController, animated: true)
+        }
     }
 }
 
