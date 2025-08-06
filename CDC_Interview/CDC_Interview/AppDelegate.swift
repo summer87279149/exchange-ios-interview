@@ -14,6 +14,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return FeatureFlagProvider()
         }
         
+        Dependency.shared.register(CryptoFormatter.self) { resolver in
+            return CryptoFormatter()
+        }
+        
+        
         return true
     }
 

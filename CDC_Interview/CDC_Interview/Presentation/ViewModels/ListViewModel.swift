@@ -1,22 +1,40 @@
 import Foundation
 import RxSwift
+protocol ListViewModelDependencyProviderType {
+    var useCase: CryptoUseCaseType { get }
+    var featureFlagProvider: FeatureFlagProviderType { get }
+    var cryptoFormatter: CryptoFormatter { get }
+}
+
+extension Dependency: ListViewModelDependencyProviderType{
+    var useCase: any CryptoUseCaseType {
+        resolve(CryptoUseCaseType.self)!
+    }
+    
+    var featureFlagProvider: any FeatureFlagProviderType {
+        resolve(FeatureFlagProviderType.self)!
+    }
+    
+    var cryptoFormatter: CryptoFormatter {
+        resolve(CryptoFormatter.self)!
+    }
+}
 
 @MainActor
 class ListViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var displayItems: [any PriceViewModelType] = []
     @Published var isLoading = false
-    @Published var error: Error?
     @Published var showEURPrice: Bool = false
     
     private let useCase: CryptoUseCaseType
-    private let featureFlagProvider: FeatureFlagProviderType
     private let disposeBag = DisposeBag()
-    
-    init(useCase: CryptoUseCaseType ,featureFlagProvider: FeatureFlagProviderType) {
-        self.useCase = useCase
-        self.featureFlagProvider = featureFlagProvider
-        
+    private let featureFlagProvider: FeatureFlagProviderType
+    private let dependencyProvider: ListViewModelDependencyProviderType
+    init(dependencyProvider: ListViewModelDependencyProviderType = Dependency.shared) {
+        self.dependencyProvider = dependencyProvider
+        self.useCase = dependencyProvider.useCase
+        self.featureFlagProvider = dependencyProvider.featureFlagProvider
         setupFeatureFlags()
     }
     
@@ -25,25 +43,42 @@ class ListViewModel: ObservableObject {
             .distinctUntilChanged()
             .subscribe(with: self, onNext: { owner, newValue in
                 owner.showEURPrice = newValue
-                Task {
-                    await owner.fetchItems(showLoading: true)
-                }
             })
             .disposed(by: disposeBag)
     }
     
-    func fetchItems(showLoading: Bool = false) async {
-        if showLoading {
+    func fetchItems(showLoading:Bool = false) async {
+        if showLoading{
             isLoading = true
         }
-        
-        do {
-            displayItems = try await useCase.getCryptoPriceData(supportEUR: showEURPrice) ?? []
-            error = nil
-        } catch {
-            self.error = error
+        defer{
+            isLoading = false
         }
+        let items = try? await useCase.getCryptoPriceData(supportEUR: showEURPrice)
+        displayItems = items ?? []
         
-        isLoading = false
+    }
+    
+    func getPriceText(_ model: any PriceViewModelType) -> String {
+        var price = "Price: \(getUSDPrice(model))"
+        if showEURPrice, model.eurPrice != nil{
+            price = "USD: \(getUSDPrice(model)) EUR: \(getEURPrice(model))"
+        }
+        return price
+    }
+    
+    func getUSDPrice(_ model: (any PriceViewModelType)?) -> String{
+        if let model{
+            return dependencyProvider.cryptoFormatter.format(value: model.usdPrice)
+        }
+        return ""
+    }
+    
+    func getEURPrice(_ model: (any PriceViewModelType)? ) -> String{
+        if let model,
+           let eurPrice = model.eurPrice {
+            return dependencyProvider.cryptoFormatter.format(value: eurPrice)
+        }
+        return ""
     }
 }

@@ -2,39 +2,38 @@ import SwiftUI
 import Combine
 
 struct CryptoListView: View {
-    @StateObject private var viewModel: ListViewModel
-    init(dependency: Dependency = .shared) {
-        let useCase = dependency.resolve(CryptoUseCaseType.self)!
-        let featureFlagProvider = dependency.resolve(FeatureFlagProviderType.self)!
-        _viewModel = StateObject(wrappedValue:
-                                    ListViewModel(useCase: useCase, featureFlagProvider: featureFlagProvider)
-        )
-    }
+    @StateObject private var viewModel = ListViewModel()
+
     var body: some View {
-        NavigationView {
-            VStack {
+        VStack {
+            if viewModel.isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .frame(maxWidth: .infinity,maxHeight: .infinity)
+            }else{
                 TextField("Search for a token", text: $viewModel.searchText)
                     .padding(8)
-//                List(viewModel.displayItems) { priceItem in
-//                    ItemView(usdPrice: priceItem as! USDPrice.Price)
-//                }
+                List(viewModel.displayItems, id: \.id) { item in
+                    ItemView(priceItem: item, priceText: viewModel.getPriceText(item))
+                       
+                }
             }
-            .task {
-                await viewModel.fetchItems()
-            }
+        }
+        .task {
+            await viewModel.fetchItems(showLoading: true)
         }
     }
 }
 
+
 struct ItemView: View {
-    private let formatter = CryptoFormatter.shared
-    let usdPrice: USDPrice.Price
-    
+    let priceItem: any PriceViewModelType
+    let priceText: String
     var body: some View {
         VStack(alignment: .leading) {
-            Text(usdPrice.name)
+            Text(priceItem.name)
                 .font(.headline)
-            Text("Price: \(formatter.format(value: usdPrice.usd))")
+            Text(priceText)
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
