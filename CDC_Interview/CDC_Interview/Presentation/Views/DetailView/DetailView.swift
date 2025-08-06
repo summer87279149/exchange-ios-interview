@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct DetailView: View {
-    private let item: PriceViewModelType
+    private let item: CryptoPriceDataType
     @StateObject private var viewModel: DetailViewModel
     
-    init(item: PriceViewModelType,
+    init(item: CryptoPriceDataType,
          dependencyProvider: ListViewModelDependencyProviderType = Dependency.shared) {
         self.item = item
         _viewModel = StateObject(
@@ -56,7 +56,7 @@ struct PriceRow: View {
     }
 }
 
-struct MockPriceItem: PriceViewModelType {
+struct MockPriceItem: CryptoPriceDataType {
     var id: Int
     var name: String
     var usdPrice: Decimal

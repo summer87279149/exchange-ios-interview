@@ -3,7 +3,7 @@ import Combine
 
 // Coordinator protocol for handling navigation from SwiftUI to UIKit
 protocol CryptoListCoordinator: AnyObject {
-    func didSelectCryptoItem(_ item: PriceViewModelType)
+    func didSelectCryptoItem(_ item: CryptoPriceDataType)
 }
 
 struct CryptoListView: View {
@@ -12,31 +12,42 @@ struct CryptoListView: View {
     
     var body: some View {
         VStack {
+            TextField("Search for a token", text: $viewModel.searchText)
+                .padding(8)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
             if viewModel.isLoading {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
                     .frame(maxWidth: .infinity,maxHeight: .infinity)
-            }else{
-                TextField("Search for a token", text: $viewModel.searchText)
-                    .padding(8)
-                List(viewModel.displayItems, id: \.id) { item in
-                    ItemView(priceItem: item, priceText: viewModel.getPriceText(item))
-                        .contentShape(Rectangle()) // Make entire row tappable
-                        .onTapGesture {
-                            coordinator?.didSelectCryptoItem(item)
-                        }
+            } else {                
+                if viewModel.displayItems.isEmpty {
+                    VStack {
+                        Spacer()
+                        Text(viewModel.searchText.isEmpty ? "No items available" : "No results for '\(viewModel.searchText)'")
+                            .foregroundColor(.gray)
+                        Spacer()
+                    }
+                } else {
+                    List(viewModel.displayItems, id: \.id) { item in
+                        ItemView(priceItem: item, priceText: viewModel.getPriceText(item))
+                            .onTapGesture {
+                                coordinator?.didSelectCryptoItem(item)
+                            }
+                    }
                 }
             }
         }
+
         .task {
-            await viewModel.fetchItems(showLoading: true)
+            await viewModel.refreshDataWithLoadingIndicator()
         }
     }
 }
 
 
 struct ItemView: View {
-    let priceItem: any PriceViewModelType
+    let priceItem: any CryptoPriceDataType
     let priceText: String
     var body: some View {
         VStack(alignment: .leading) {

@@ -32,14 +32,15 @@ struct AllPrice: Decodable {
     let data: [Price]
 }
 
-protocol PriceViewModelType {
+
+protocol CryptoPriceDataType {
     var id: Int { get }
     var name: String { get }
     var usdPrice: Decimal { get }
     var eurPrice: Decimal? { get }
 }
 
-extension USDPrice.Price: PriceViewModelType{
+extension USDPrice.Price: CryptoPriceDataType{
     var usdPrice: Decimal {
         usd
     }
@@ -49,7 +50,7 @@ extension USDPrice.Price: PriceViewModelType{
     }
 }
 
-extension AllPrice.Price: PriceViewModelType{
+extension AllPrice.Price: CryptoPriceDataType{
     var usdPrice: Decimal {
         price.usd
     }
