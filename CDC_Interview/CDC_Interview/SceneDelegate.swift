@@ -64,7 +64,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 // MARK: - CryptoListCoordinator
 extension SceneDelegate: CryptoListCoordinator {
     func didSelectCryptoItem(_ item: PriceViewModelType) {
-        let detailView = DetailView()
+        let detailView = DetailView(item: item)
         let detailViewController = UIHostingController(rootView: detailView)
         detailViewController.title = item.name
         if let navigationController = window?.rootViewController?.children.first as? UINavigationController {
