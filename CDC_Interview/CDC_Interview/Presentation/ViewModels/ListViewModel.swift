@@ -59,7 +59,7 @@ class ListViewModel: ObservableObject {
         
     }
     
-    func getPriceText(_ model: any PriceViewModelType) -> String {
+    func getPriceText(_ model: CryptoPriceDataType) -> String {
         var price = "Price: \(getUSDPrice(model))"
         if showEURPrice, model.eurPrice != nil{
             price = "USD: \(getUSDPrice(model)) EUR: \(getEURPrice(model))"
@@ -67,14 +67,14 @@ class ListViewModel: ObservableObject {
         return price
     }
     
-    func getUSDPrice(_ model: (any PriceViewModelType)?) -> String{
+    func getUSDPrice(_ model: CryptoPriceDataType?) -> String{
         if let model{
             return dependencyProvider.cryptoFormatter.format(value: model.usdPrice)
         }
         return ""
     }
     
-    func getEURPrice(_ model: (any PriceViewModelType)? ) -> String{
+    func getEURPrice(_ model: CryptoPriceDataType? ) -> String{
         if let model,
            let eurPrice = model.eurPrice {
             return dependencyProvider.cryptoFormatter.format(value: eurPrice)

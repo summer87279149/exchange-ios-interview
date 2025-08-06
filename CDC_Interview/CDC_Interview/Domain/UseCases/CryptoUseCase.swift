@@ -1,7 +1,7 @@
 import Foundation
 
 protocol CryptoUseCaseType {
-    func getCryptoPriceData(supportEUR: Bool) async throws -> [PriceViewModelType]
+    func getCryptoPriceData(supportEUR: Bool) async throws -> [CryptoPriceDataType]
 }
 
 
@@ -12,7 +12,7 @@ class CryptoUseCase: CryptoUseCaseType {
         self.repository = repository
     }
     
-    func getCryptoPriceData(supportEUR: Bool) async throws -> [PriceViewModelType] {
+    func getCryptoPriceData(supportEUR: Bool) async throws -> [CryptoPriceDataType] {
         if supportEUR {
             return try await repository.fetchAllPricesAsync()
         } else {

@@ -161,7 +161,7 @@ final class MockFormatter: CryptoFormatter {
     }
 }
 
-struct MockPriceItem: PriceViewModelType {
+struct MockPriceItem: CryptoPriceDataType {
     var id: Int
     var name: String
     var usdPrice: Decimal
@@ -169,10 +169,10 @@ struct MockPriceItem: PriceViewModelType {
 }
 
 class MockCryptoUseCase: CryptoUseCaseType {
-    var stubbedItems: [PriceViewModelType] = []
+    var stubbedItems: [CryptoPriceDataType] = []
     var shouldThrowError = false
     
-    func getCryptoPriceData(supportEUR: Bool) async throws -> [PriceViewModelType] {
+    func getCryptoPriceData(supportEUR: Bool) async throws -> [CryptoPriceDataType] {
         if shouldThrowError {
             throw NSError(domain: "TestError", code: 100, userInfo: nil)
         }

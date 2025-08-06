@@ -4,7 +4,7 @@ import RxSwift
 class DetailViewModel: ObservableObject {
     @Published var showEURPrice: Bool = false
     
-    private let item: PriceViewModelType
+    private let item: CryptoPriceDataType
     private let dependencyProvider: ListViewModelDependencyProviderType
     private let disposeBag = DisposeBag()
     
@@ -19,7 +19,7 @@ class DetailViewModel: ObservableObject {
         return "--"
     }
     
-    init(item: PriceViewModelType, dependencyProvider: ListViewModelDependencyProviderType) {
+    init(item: CryptoPriceDataType, dependencyProvider: ListViewModelDependencyProviderType) {
         self.item = item
         self.dependencyProvider = dependencyProvider
         setupFeatureFlags()

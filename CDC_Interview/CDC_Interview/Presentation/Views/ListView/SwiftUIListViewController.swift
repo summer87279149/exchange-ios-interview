@@ -3,7 +3,7 @@ import Combine
 
 // Coordinator protocol for handling navigation from SwiftUI to UIKit
 protocol CryptoListCoordinator: AnyObject {
-    func didSelectCryptoItem(_ item: PriceViewModelType)
+    func didSelectCryptoItem(_ item: CryptoPriceDataType)
 }
 
 struct CryptoListView: View {
@@ -36,7 +36,7 @@ struct CryptoListView: View {
 
 
 struct ItemView: View {
-    let priceItem: any PriceViewModelType
+    let priceItem: any CryptoPriceDataType
     let priceText: String
     var body: some View {
         VStack(alignment: .leading) {

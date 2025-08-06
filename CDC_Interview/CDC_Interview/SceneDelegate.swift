@@ -63,7 +63,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 // MARK: - CryptoListCoordinator
 extension SceneDelegate: CryptoListCoordinator {
-    func didSelectCryptoItem(_ item: PriceViewModelType) {
+    func didSelectCryptoItem(_ item: CryptoPriceDataType) {
         let detailView = DetailView(item: item)
         let detailViewController = UIHostingController(rootView: detailView)
         detailViewController.title = item.name
