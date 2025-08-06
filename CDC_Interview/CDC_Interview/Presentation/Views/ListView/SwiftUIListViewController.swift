@@ -1,9 +1,15 @@
 import SwiftUI
 import Combine
 
+// Coordinator protocol for handling navigation from SwiftUI to UIKit
+protocol CryptoListCoordinator: AnyObject {
+    func didSelectCryptoItem(_ item: PriceViewModelType)
+}
+
 struct CryptoListView: View {
     @StateObject private var viewModel = ListViewModel()
-
+    weak var coordinator: CryptoListCoordinator?
+    
     var body: some View {
         VStack {
             if viewModel.isLoading {
@@ -15,7 +21,10 @@ struct CryptoListView: View {
                     .padding(8)
                 List(viewModel.displayItems, id: \.id) { item in
                     ItemView(priceItem: item, priceText: viewModel.getPriceText(item))
-                       
+                        .contentShape(Rectangle()) // Make entire row tappable
+                        .onTapGesture {
+                            coordinator?.didSelectCryptoItem(item)
+                        }
                 }
             }
         }
