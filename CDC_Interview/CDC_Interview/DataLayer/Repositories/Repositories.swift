@@ -23,6 +23,8 @@ class CryptoRepository: CryptoRepositoryType {
     }
     
     func fetchUSDPricesAsync() async throws -> [USDPrice.Price] {
+        // Add 2-second delay to simulate network latency
+        try await Task.sleep(nanoseconds: 2_000_000_000)        
         let usdPrice: USDPrice = try await networkService.loadLocalJSON(filename: "usdPrices")
         return usdPrice.data
     }
@@ -36,6 +38,9 @@ class CryptoRepository: CryptoRepositoryType {
     }
 
     func fetchAllPricesAsync() async throws -> [AllPrice.Price] {
+        // Add 2-second delay to simulate network latency
+        try await Task.sleep(nanoseconds: 2_000_000_000)
+        
         let allPrice: AllPrice = try await networkService.loadLocalJSON(filename: "allPrices")
         return allPrice.data
     }
