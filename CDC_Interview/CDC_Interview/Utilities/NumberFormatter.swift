@@ -8,7 +8,7 @@ class CryptoFormatter {
     init() {}
 
     /// Formats a cryptocurrency value to a fixed number of fractional digits (e.g., 8 for BTC)
-    func format(value: Decimal, decimalPlaces: Int = 8) -> String {
+    func format(value: Decimal, decimalPlaces: Int = 2) -> String {
         let formatter = NumberFormatter()
         formatter.locale = locale
         formatter.numberStyle = .decimal
