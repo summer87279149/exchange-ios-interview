@@ -35,6 +35,7 @@
 		841C36EB2E42F2E500921B7A /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C36EA2E42F2E500921B7A /* DetailViewModel.swift */; };
 		841C36ED2E42F63100921B7A /* DetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C36EC2E42F63100921B7A /* DetailViewModelTests.swift */; };
 		841C36F32E433F6000921B7A /* CryptoUseCaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C36F22E433F6000921B7A /* CryptoUseCaseTests.swift */; };
+		841C36F72E4346D400921B7A /* PROJECT_SUMMARY.md in Resources */ = {isa = PBXBuildFile; fileRef = 841C36F62E4346D400921B7A /* PROJECT_SUMMARY.md */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +77,7 @@
 		841C36EA2E42F2E500921B7A /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 		841C36EC2E42F63100921B7A /* DetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModelTests.swift; sourceTree = "<group>"; };
 		841C36F22E433F6000921B7A /* CryptoUseCaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoUseCaseTests.swift; sourceTree = "<group>"; };
+		841C36F62E4346D400921B7A /* PROJECT_SUMMARY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PROJECT_SUMMARY.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +105,7 @@
 		1F966FFD2C91A7E1004DB8FD = {
 			isa = PBXGroup;
 			children = (
+				841C36F62E4346D400921B7A /* PROJECT_SUMMARY.md */,
 				1F9670362C931640004DB8FD /* README.md */,
 				1F9670082C91A7E1004DB8FD /* CDC_Interview */,
 				1FBEC5A12C940DE300732A9C /* CDC_InterviewTests */,
@@ -370,6 +373,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				841C36F72E4346D400921B7A /* PROJECT_SUMMARY.md in Resources */,
 				1F96703C2C932731004DB8FD /* allPrices.json in Resources */,
 				1F9670292C91AE12004DB8FD /* usdPrices.json in Resources */,
 				1F9670132C91A7E3004DB8FD /* Assets.xcassets in Resources */,
