@@ -16,20 +16,31 @@ struct CryptoListView: View {
                 ProgressView()
                     .progressViewStyle(CircularProgressViewStyle())
                     .frame(maxWidth: .infinity,maxHeight: .infinity)
-            }else{
+            } else {
                 TextField("Search for a token", text: $viewModel.searchText)
                     .padding(8)
-                List(viewModel.displayItems, id: \.id) { item in
-                    ItemView(priceItem: item, priceText: viewModel.getPriceText(item))
-                        .contentShape(Rectangle()) // Make entire row tappable
-                        .onTapGesture {
-                            coordinator?.didSelectCryptoItem(item)
-                        }
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                
+                if viewModel.displayItems.isEmpty {
+                    VStack {
+                        Spacer()
+                        Text(viewModel.searchText.isEmpty ? "No items available" : "No results for '\(viewModel.searchText)'")
+                            .foregroundColor(.gray)
+                        Spacer()
+                    }
+                } else {
+                    List(viewModel.displayItems, id: \.id) { item in
+                        ItemView(priceItem: item, priceText: viewModel.getPriceText(item))
+                            .onTapGesture {
+                                coordinator?.didSelectCryptoItem(item)
+                            }
+                    }
                 }
             }
         }
         .task {
-            await viewModel.fetchItems(showLoading: true)
+            await viewModel.refreshDataWithLoadingIndicator()
         }
     }
 }
