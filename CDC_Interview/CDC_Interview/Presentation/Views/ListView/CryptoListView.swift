@@ -16,31 +16,19 @@ struct CryptoListView: View {
                 .padding(8)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
-            if viewModel.isLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
-                    .frame(maxWidth: .infinity,maxHeight: .infinity)
-            } else {                
-                if viewModel.displayItems.isEmpty {
-                    VStack {
-                        Spacer()
-                        Text(viewModel.searchText.isEmpty ? "No items available" : "No results for '\(viewModel.searchText)'")
-                            .foregroundColor(.gray)
-                        Spacer()
-                    }
-                } else {
-                    List(viewModel.displayItems, id: \.id) { item in
-                        ItemView(priceItem: item, priceText: viewModel.getPriceText(item))
-                            .onTapGesture {
-                                coordinator?.didSelectCryptoItem(item)
-                            }
-                    }
+            if viewModel.displayItems.isEmpty {
+                Spacer()
+            } else {
+                List(viewModel.displayItems, id: \.id) { item in
+                    ItemView(priceItem: item, priceText: viewModel.getPriceText(item))
+                        .onTapGesture {
+                            coordinator?.didSelectCryptoItem(item)
+                        }
                 }
             }
         }
-
         .task {
-            await viewModel.refreshDataWithLoadingIndicator()
+            await viewModel.refreshData()
         }
     }
 }

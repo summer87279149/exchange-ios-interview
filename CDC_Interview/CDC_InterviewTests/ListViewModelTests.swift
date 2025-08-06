@@ -32,51 +32,6 @@ final class ListViewModelTests: XCTestCase {
         disposeBag = nil
     }
     
- 
-    
-    func testFetchItems_Success() async {
-        // Arrange
-        let expectedItems = [
-            MockPriceItem(id: 1, name: "BTC", usdPrice: 100.0, eurPrice: 90.0),
-            MockPriceItem(id: 2, name: "ETH", usdPrice: 50.0, eurPrice: 45.0)
-        ]
-        mockUseCase.stubbedItems = expectedItems
-        let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
-        
-        // Act
-        await viewModel.refreshDataWithLoadingIndicator()
-        
-        // Assert
-        XCTAssertEqual(viewModel.displayItems.count, 2)
-        XCTAssertEqual((viewModel.displayItems[0] as! MockPriceItem).name, "BTC")
-        XCTAssertEqual((viewModel.displayItems[1] as! MockPriceItem).name, "ETH")
-        XCTAssertFalse(viewModel.isLoading)
-    }
-    
-    func testFetchItems_WithLoading() async {
-        // Arrange
-        mockUseCase.stubbedItems = []
-        let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
-        
-        // Act
-        await viewModel.refreshDataWithLoadingIndicator()
-        
-        // Assert
-        XCTAssertFalse(viewModel.isLoading) // Should be false after fetch completes
-    }
-    
-    func testFetchItems_Error() async {
-        // Arrange
-        mockUseCase.shouldThrowError = true
-        let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
-        
-        // Act
-        await viewModel.refreshDataWithLoadingIndicator()
-        
-        // Assert
-        XCTAssertTrue(viewModel.displayItems.isEmpty)
-        XCTAssertFalse(viewModel.isLoading)
-    }
     
     func testGetUSDPrice() {
         // Arrange
@@ -157,22 +112,76 @@ final class ListViewModelTests: XCTestCase {
     
     
     
-    func testSetupFeatureFlags() {
+    func testSetupFeatureFlags() async {
         // Arrange
         let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
         
         // Act
         mockFeatureFlagProvider.update(flag: .supportEUR, newValue: true)
-        
+        await viewModel.refreshData()
+        try? await Task.sleep(nanoseconds: 300_000_000)
         // Assert
         XCTAssertTrue(viewModel.showEURPrice)
         
         // Act again
         mockFeatureFlagProvider.update(flag: .supportEUR, newValue: false)
-        
+        try? await Task.sleep(nanoseconds: 300_000_000)
         // Assert again
         XCTAssertFalse(viewModel.showEURPrice)
     }
+    
+    
+    func testRefreshData() async {
+        // Arrange
+        let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
+        
+        let updatedItems = [
+            MockPriceItem(id: 1, name: "BTC", usdPrice: 150.0, eurPrice: 135.0),
+            MockPriceItem(id: 2, name: "ETH", usdPrice: 50.0, eurPrice: 45.0)
+        ]
+        mockUseCase.stubbedItems = updatedItems
+        
+        // Act - call the refreshData method
+        await viewModel.refreshData()
+        
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        
+        // Assert - verify that the data was refreshed
+        XCTAssertEqual(viewModel.displayItems.count, 2)
+        XCTAssertEqual((viewModel.displayItems[0] as! MockPriceItem).name, "BTC")
+        XCTAssertEqual((viewModel.displayItems[0] as! MockPriceItem).usdPrice, 150.0)
+        XCTAssertEqual((viewModel.displayItems[1] as! MockPriceItem).name, "ETH")
+    }
+    
+    // Test that refreshData correctly handles errors
+    func testRefreshData_ErrorHandling() async {
+        let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
+        
+        mockUseCase.shouldThrowError = true
+        
+        
+        await viewModel.refreshData()
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        
+        // Assert - verify that the view model handled the error gracefully
+        // The display items should be empty as the error handler sets allItems to empty array
+        XCTAssertEqual(viewModel.displayItems.count, 0)
+        
+        // Test recovery after error
+        mockUseCase.shouldThrowError = false
+        mockUseCase.stubbedItems = [
+            MockPriceItem(id: 1, name: "BTC", usdPrice: 200.0, eurPrice: 180.0),
+            MockPriceItem(id: 2, name: "ETH", usdPrice: 50.0, eurPrice: 45.0)
+        ]
+        
+        // Refresh again
+        await viewModel.refreshData()
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        
+        // Verify system recovers after error
+        XCTAssertEqual(viewModel.displayItems.count, 2)
+    }
+    
     
     func testSearchFilter_EmptyQuery() async {
         // Arrange
@@ -184,9 +193,10 @@ final class ListViewModelTests: XCTestCase {
         let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
         
         // Act
-        await viewModel.refreshDataWithLoadingIndicator()
+        viewModel.searchText = "B"
         viewModel.searchText = ""
-        
+        await viewModel.refreshData()
+        try? await Task.sleep(nanoseconds: 300_000_000)
         // Assert
         XCTAssertEqual(viewModel.displayItems.count, 2)
     }
@@ -202,10 +212,9 @@ final class ListViewModelTests: XCTestCase {
         let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
         
         // Act
-        await viewModel.refreshDataWithLoadingIndicator()
         viewModel.searchText = "B"
         viewModel.searchText = "BT"
-        
+        try? await Task.sleep(nanoseconds: 300_000_000)
         // Assert
         XCTAssertEqual(viewModel.displayItems.count, 1)
         XCTAssertEqual((viewModel.displayItems[0] as! MockPriceItem).name, "BTC")
@@ -221,7 +230,6 @@ final class ListViewModelTests: XCTestCase {
         let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
         
         // Act
-        await viewModel.refreshDataWithLoadingIndicator()
         viewModel.searchText = "X"
         try? await Task.sleep(nanoseconds: 300_000_000)
         viewModel.searchText = "XY"
@@ -242,9 +250,8 @@ final class ListViewModelTests: XCTestCase {
         let viewModel = ListViewModel(dependencyProvider: mockDependencyProvider)
         
         // Act
-        await viewModel.refreshDataWithLoadingIndicator()
         viewModel.searchText = "btc"  // lowercase search
-        
+        try? await Task.sleep(nanoseconds: 300_000_000)
         // Assert
         XCTAssertEqual(viewModel.displayItems.count, 1)
         XCTAssertEqual((viewModel.displayItems[0] as! MockPriceItem).name, "BTC")
@@ -276,8 +283,8 @@ final class ListViewModelTests: XCTestCase {
         // Verify system recovers after error
         
     }
-
-
+    
+    
 }
 
 final class MockFormatter: CryptoFormatter {
